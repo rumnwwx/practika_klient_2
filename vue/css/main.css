@@ -1,0 +1,6 @@
+.app-container {
+    display: flex;
+}
+.column {
+    width: 30%;
+}
