@@ -15,8 +15,21 @@
     <div class="app-container">
         <div class="column" v-for="(notes, columnName) in columns" :key="columnName">
             <h2>{{ columnTitles[columnName] }}</h2>
+
+            <button v-if="columnName !== 'completed'" @click="addNote(columnName)">Добавить заметку</button>
+
+            <div v-for="note in notes" :key="note.id" class="note">
+                <h3>{{ note.title }}</h3>
+                <ul>
+                    <li v-for="(item, index) in note.items" :key="index">
+                        <input type="checkbox" v-model="item.completed"> {{ item.text }}
+                    </li>
+                </ul>
+                <button @click="deleteNote(note.id)">Удалить заметку</button>
+            </div>
         </div>
     </div>
 </div>
+
 </body>
 </html>
