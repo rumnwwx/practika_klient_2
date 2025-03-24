@@ -1,14 +1,31 @@
 *{
-    margin: 0 auto;
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
 .app-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
 }
 
 .column {
-    width: 20%;
+    display: flex;
+    justify-content: center;
+    border: 2px solid #b8ffb1;
+    padding: 10px;
+    border-radius: 10px;
+}
+.column-inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 5px;
+}
+
+.note {
+    border: 1px solid #75bc6e;
+    padding: 10px 10px 10px 30px;
+    border-radius: 10px;
 }

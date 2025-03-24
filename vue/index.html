@@ -12,32 +12,33 @@
 </head>
 <body>
 <div id="app">
-
     <div class="app-container">
         <div class="column" v-for="(columnNotes, columnName) in columns" :key="columnName">
-            <h2>{{ columnTitles[columnName] }}</h2>
+            <div class="column-inner">
+                <h2>{{ columnTitles[columnName] }}</h2>
 
-            <div class="form-container" v-if="columnTitles[columnName] === 'Начато'">
-                <h3>Добавить новую заметку</h3>
-                <input v-model="newNote.title" placeholder="Название заметки">
-                <div v-for="(item, index) in newNote.items" :key="index">
-                    <input v-model="newNote.items[index]" placeholder="подзадача">
+                <div v-for="note in columnNotes" :key="note.id" class="note">
+                    <h3 class="note-title">{{ note.title }}</h3>
+                    <ul>
+                        <li v-for="(item, index) in note.items" :key="index">
+                            <input type="checkbox" v-model="item.completed" @change="checkNoteProgress(note, columnName)"> {{ item.text }}
+                        </li>
+                    </ul>
+                    <p v-if="note.completedDate">Завершено: {{ note.completedDate }}</p>
+                    <button @click="deleteNote(note.id)">Удалить заметку</button>
                 </div>
-                <button @click="addNote('todo')">Добавить в 'Начато'</button>
-            </div>
-            <div v-for="note in columnNotes" :key="note.id" class="note">
-                <h3>{{ note.title }}</h3>
-                <ul>
-                    <li v-for="(item, index) in note.items" :key="index">
-                        <input type="checkbox" v-model="item.completed" @change="checkProgress(note)"> {{ item.text }}
-                    </li>
-                </ul>
-                <p v-if="note.completedDate">Завершено: {{ note.completedDate }}</p>
-                <button @click="deleteNote(note.id)">Удалить заметку</button>
+
+                <div class="form-container" v-if="columnTitles[columnName] === 'Начато'">
+                    <h3>Добавить новую заметку</h3>
+                    <input v-model="newNote.title" placeholder="Название заметки">
+                    <div v-for="(item, index) in newNote.items" :key="index">
+                        <input v-model="newNote.items[index]" placeholder="подзадача">
+                    </div>
+                    <button @click="addNote('todo')">Добавить в 'Начато'</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 </body>
 </html>
