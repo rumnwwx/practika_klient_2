@@ -14,12 +14,23 @@ let app = new Vue({
         newNote: {
             title: '',
             items: ['', '', ''],
+        },
+        columnLimits: {
+            todo: 3,
+            inProgress: 5,
+            completed: Infinity,
         }
     },
     methods: {
         addNote(column) {
             if (this.newNote.title.trim() === '' || this.newNote.items.some(item => item.trim() === '')) {
                 alert('Заполните все поля заметки!');
+                return;
+            }
+
+
+            if (this.columns[column].length >= this.columnLimits[column]) {
+                alert(`Невозможно добавить больше карточек в столбец "${this.columnTitles[column]}". Лимит: ${this.columnLimits[column]}`);
                 return;
             }
 
@@ -54,6 +65,12 @@ let app = new Vue({
         moveNote(noteId, fromColumn, toColumn) {
             const noteIndex = this.columns[fromColumn].findIndex(note => note.id === noteId);
             if (noteIndex !== -1) {
+
+                if (this.columns[toColumn].length >= this.columnLimits[toColumn]) {
+                    alert(`Невозможно переместить карточку в столбец "${this.columnTitles[toColumn]}". Лимит: ${this.columnLimits[toColumn]}`);
+                    return;
+                }
+
                 const note = this.columns[fromColumn].splice(noteIndex, 1)[0];
                 this.columns[toColumn].push(note);
             }
