@@ -23,6 +23,20 @@ let app = new Vue({
         isTodoLocked: false,
         waitingNoteId: null,
     },
+    created() {
+        const savedData = localStorage.getItem('noteAppData');
+        if (savedData) {
+            this.columns = JSON.parse(savedData);
+        }
+    },
+    watch: {
+        columns: {
+            handler() {
+                localStorage.setItem('noteAppData', JSON.stringify(this.columns));
+            },
+            deep: true
+        }
+    },
     methods: {
         addNote(column) {
             if (this.isTodoLocked && column === 'todo') {
