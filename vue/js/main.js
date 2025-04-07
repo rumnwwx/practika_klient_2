@@ -19,18 +19,29 @@ let app = new Vue({
             todo: 3,
             inProgress: 5,
             completed: Infinity,
-        }
+        },
+        isTodoLocked: false,
+        waitingNoteId: null,
     },
     methods: {
         addNote(column) {
-            if (this.newNote.title.trim() === '' || this.newNote.items.some(item => item.trim() === '')) {
-                alert('Заполните все поля заметки!');
+            if (this.isTodoLocked && column === 'todo') {
+                alert('Добавление карточек в "Начато" временно заблокировано.');
                 return;
             }
 
+            if (
+                this.newNote.title.trim() === '' ||
+                this.newNote.items.some(item => item.trim() === '') ||
+                this.newNote.items.length < 3 ||
+                this.newNote.items.length > 5
+            ) {
+                alert('Заполните все поля (от 3 до 5 подзадач)!');
+                return;
+            }
 
             if (this.columns[column].length >= this.columnLimits[column]) {
-                alert(`Невозможно добавить больше карточек в столбец "${this.columnTitles[column]}". Лимит: ${this.columnLimits[column]}`);
+                alert(`Лимит карточек для "${this.columnTitles[column]}" достигнут.`);
                 return;
             }
 
@@ -55,19 +66,41 @@ let app = new Vue({
             const completedItems = note.items.filter(item => item.completed).length;
             const progress = (completedItems / totalItems) * 100;
 
-            if (progress > 50 && column === 'todo') {
-                this.moveNote(note.id, 'todo', 'inProgress');
-            } else if (progress === 100 && column === 'inProgress') {
+            if (column === 'todo') {
+                if (progress === 100) {
+                    note.completedDate = new Date().toLocaleString();
+                    this.moveNote(note.id, 'todo', 'completed');
+                } else if (progress > 50) {
+                    if (this.columns.inProgress.length >= this.columnLimits.inProgress) {
+                        this.isTodoLocked = true;
+                        this.waitingNoteId = note.id;
+                        alert('Столбец "К работе" переполнен. Заметка будет перенесена, когда появится место.');
+                    } else {
+                        this.moveNote(note.id, 'todo', 'inProgress');
+                    }
+                }
+            }
+
+            if (column === 'inProgress' && progress === 100) {
                 note.completedDate = new Date().toLocaleString();
                 this.moveNote(note.id, 'inProgress', 'completed');
+
+                if (this.waitingNoteId) {
+                    const waitingNote = this.columns.todo.find(n => n.id === this.waitingNoteId);
+                    if (waitingNote) {
+                        this.moveNote(this.waitingNoteId, 'todo', 'inProgress');
+                    }
+                    this.waitingNoteId = null;
+                }
+
+                this.isTodoLocked = false;
             }
         },
         moveNote(noteId, fromColumn, toColumn) {
             const noteIndex = this.columns[fromColumn].findIndex(note => note.id === noteId);
             if (noteIndex !== -1) {
-
                 if (this.columns[toColumn].length >= this.columnLimits[toColumn]) {
-                    alert(`Невозможно переместить карточку в столбец "${this.columnTitles[toColumn]}". Лимит: ${this.columnLimits[toColumn]}`);
+                    alert(`Невозможно переместить карточку в "${this.columnTitles[toColumn]}" — лимит достигнут.`);
                     return;
                 }
 
